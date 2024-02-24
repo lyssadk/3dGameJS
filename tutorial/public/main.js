@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 
+
 // Create a scene: we need a scene to place objects in, a camera to see the scene, and a renderer to render the scene.
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
 const renderer = new THREE.WebGLRenderer();
 
 // setting the size of the renderer
