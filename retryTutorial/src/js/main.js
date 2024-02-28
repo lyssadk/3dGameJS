@@ -2,14 +2,14 @@ import * as THREE from 'three';
 
 // code copied from https://threejs.org/manual/#en/fundamentals with minor modifications
 function main() {
-
+	const colorButton = document.querySelector( '#color' );
 	const canvas = document.querySelector( '#c' );
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas, alpha: true,  premultipliedAlpha: false } );
 
-	const fov = 75;
+	const fov = 85;
 	const aspect = 2; // the canvas default
 	const near = 0.1;
-	const far = 5;
+	const far = 7;
 	const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
 	camera.position.z = 2;
 
@@ -42,25 +42,8 @@ function main() {
 		return cube;
 
 	}
-    canvas.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp') {
-            camera.position.y += 7.1;
-        }
-        else if (e.key === 'ArrowDown') {
-            camera.position.y -= 5.1;
-            
-        }
-        else if (e.key === 'ArrowLeft') {
-            camera.position.x -= 5.1;
-        }
-        else if (e.key === 'ArrowRight') {
-            camera.position.x += 5.1;
-        }
-        else{
-            camera.position.z += 5.1;
-        }
-    });
-
+    
+    
 	const cubes = [
 		makeInstance( geometry, 0x44aa88, 0 ),
 		makeInstance( geometry, 0x8844aa, - 2 ),
@@ -85,6 +68,27 @@ function main() {
 		requestAnimationFrame( render );
 
 	}
+	
+	window.addEventListener("keypress", (e)=>{
+		if(e.key === "r"){
+			cubes.forEach( ( cube, ndx ) => {
+				cube.material.color.set(0xD11212);
+			})
+		}
+		if(e.key === "g"){
+			cubes.forEach( ( cube, ndx ) => {
+				cube.material.color.set(0x00ff00);
+			})
+		}
+		if(e.key === "b"){
+			cubes.forEach( ( cube, ndx ) => {
+				cube.material.color.set(0x0000ff);
+			})
+		}
+		
+		
+
+	})
 
 	requestAnimationFrame( render );
 
