@@ -2,9 +2,11 @@ import './style.css'
 import * as THREE from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as CANNON from 'cannon-es';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // import CannonDebugger from 'cannon-es-debugger';
 
 /* Variables */
+const loader = new GLTFLoader();
 const pointsUI = document.querySelector('#points');
 let points = 0;
 const startButton = document.querySelector('#startButton');
@@ -71,6 +73,14 @@ const player = new THREE.Mesh(
   ); 
 scene.add( player); 
 
+// trees
+loader.load('tree.glb', (gltf) => {
+  // Tree by Poly by Google [CC-BY] via Poly Pizza
+  gltf.scene.scale.set(0.01, 0.01, 0.01);
+  gltf.scene.position.set(5, 0, 5);
+  scene.add(gltf.scene);
+});
+
 /* Enemies */
 const littleEnemies = []
 for (let i = 0; i < 10; i++) {
@@ -119,7 +129,15 @@ const moveEnemies =(arr, speed, maxX, minX, maxZ, minZ) => {
     }
   })
 }
-
+// function that collects the coins and the player gets smaller
+function collectCoins() {
+  coins.forEach((coin) => {
+    if (player.position.distanceTo(coin.position) < 0.5) {
+      scene.remove(coin);
+      player.scale.x += 0.1;
+    }
+  });
+}
 // function that shoots little circles at the enemies
 function shoot() {
   const bullets = [];
@@ -131,7 +149,7 @@ function shoot() {
   bullet.velocity = new THREE.Vector3(0, 0, -1);
   scene.add(bullet);
   bullets.push(bullet);
-  const bulletSpeed = 0.1;
+
   function moveBullets() {
     bullets.forEach((bullet) => {
       bullet.position.add(bullet.velocity);
@@ -177,6 +195,7 @@ function animate() {
   controls.update();
   moveEnemies(littleEnemies, 0.05, 13, -13, 13, -13);
   moveEnemies(enemies, 0.2, 13, -13, 13, -13);
+  collectCoins();
   world.fixedStep();
   renderer.render( scene, camera ); 
 } 
