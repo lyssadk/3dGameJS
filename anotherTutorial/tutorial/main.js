@@ -1,7 +1,16 @@
 import './style.css'
 import * as THREE from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import * as CANNON from 'cannon-es';
+import CannonDebugger from 'cannon-es-debugger';
 
+/* Variables */
+const pointsUI = document.querySelector('#points');
+let points = 0;
+
+const world = new CANNON.World({
+  gravity: new CANNON.Vec3(0, -9.82, 0),
+});
 const scene = new THREE.Scene(); 
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z=4.5;
@@ -19,25 +28,87 @@ const controls = new OrbitControls(camera, renderer.domElement);
 const gridHelper = new THREE.GridHelper(30, 30);
 scene.add(gridHelper);
 
+/* Lights */
+const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+scene.add( light );
+const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+directionalLight.position.set(0.5, 1, 1.5);
+scene.add( directionalLight );
+
+
+
+/* Ground */
 const ground = new THREE.Mesh(
   new THREE.BoxGeometry( 30, 1, 30 ),
-  new THREE.MeshBasicMaterial( { color: 0x00ff00 } )
+  new THREE.MeshPhongMaterial( { color: 0x00ff00 } )
   ); 
 
   ground.position.y = -1;
 scene.add( ground ); 
 
+/* Player */
+
 const player = new THREE.Mesh(
   new THREE.BoxGeometry( .5, .5, .5 ),
-  new THREE.MeshBasicMaterial( { color: 0xff0000 } )
+  new THREE.MeshPhongMaterial( { color: 0xff0000 } )
   ); 
 scene.add( player); 
 
+/* Enemies */
+const littleEnemies = []
+for (let i = 0; i < 10; i++) {
+  const enemy = new THREE.Mesh(
+    new THREE.BoxGeometry( .1, .5, .1 ),
+    new THREE.MeshPhongMaterial( { color: 0xcccff } )
+  );
+  enemy.position.x = (Math.random() - 0.5) * 20;
+  enemy.position.z = (Math.random() - 0.5) * 20;
+  enemy.name = 'enemy' + i + 1;
+  scene.add(enemy);
+  littleEnemies.push(enemy);
+}
 
-
+const enemies = [];
+for (let i = 0; i < 10; i++) {
+  const enemy = new THREE.Mesh(
+    new THREE.BoxGeometry( .5, .5, .5 ),
+    new THREE.MeshPhongMaterial( { color: 0xf0000 } )
+  );
+  enemy.position.x = (Math.random() - 0.5) * 20;
+  enemy.position.z = (Math.random() - 0.5) * 20;
+  enemy.name = 'enemy' + i + 1;
+  scene.add(enemy);
+  enemies.push(enemy);
+}
+/* Coins */
+const coins = [];
+for (let i = 0; i < 20; i++) {
+  const coin = new THREE.Mesh(
+    new THREE.CylinderGeometry( 0.2, 0.2, 0.1, 20 ),
+    new THREE.MeshPhongMaterial( { color: 0xffff00 } )
+  );
+  coin.position.x = (Math.random() - 0.5) * 20;
+  coin.position.z = (Math.random() - 0.5) * 20;
+  coin.name = 'coin' + i + 1;
+  scene.add(coin);
+  coins.push(coin);
+}
+const moveEnemies =(arr, speed, maxX, minX, maxZ, minZ) => {
+  arr.forEach((enemy) => {
+    enemy.position.z += speed;
+    if (enemy.position.z > maxZ) {
+      enemy.position.z = minZ;
+      enemy.position.x = (Math.random() - 0.5) * maxX;
+    }
+  })
+}
 function animate() { 
+
   requestAnimationFrame( animate ); 
   controls.update();
+  moveEnemies(littleEnemies, 0.1, 10, -10, 10, -10);
+  moveEnemies(enemies, 0.1, 20, -20, 20, -20);
+  world.fixedStep();
   renderer.render( scene, camera ); 
 } 
 
@@ -54,17 +125,27 @@ window.addEventListener('resize', () => {
 })
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowUp') {
-    player.position.z -= 0.1;
+  if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+    player.position.z -= 0.5;
   }
-  if (e.key === 'ArrowDown') {
-    player.position.z += 0.1;
+  if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+    player.position.z += 0.5;
   }
-  if (e.key === 'ArrowLeft') {
-    player.position.x -= 0.1;
+  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+    player.position.x -= 0.5;
   }
-  if (e.key === 'ArrowRight') {
-    player.position.x += 0.1;
+  if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+    player.position.x += 0.5;
   }
-
+  if (e.key === ' ') {
+    player.position.y += 0.5;
+  } 
+  if (e.key === 'c') {
+    player.position.y -= 0.5;
+  }
+  if(e.key ==='r' || e.key === 'R'){
+    player.position.x = 0;
+    player.position.y = 0;
+    player.position.z = 0;
+  }
 })
