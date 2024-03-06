@@ -68,7 +68,9 @@ function main() {
 		requestAnimationFrame( render );
 
 	}
-	
+	function moveCubes(){
+		
+	}
 	window.addEventListener("keypress", (e)=>{
 		if(e.key === "r"){
 			cubes.forEach( ( cube, ndx ) => {

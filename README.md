@@ -7,3 +7,6 @@ Following the tutorial to use three js to create a scene and hopefully make a ga
 Errors running into:
 Rollup Error, potentially a package i didnt installl oops
 -> redid setup using parcel and that fixed it (the youtube vid)
+
+
+[anotherTutorial](https://www.youtube.com/watch?v=Sv8z__KiR5Y)
