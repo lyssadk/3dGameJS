@@ -70,7 +70,8 @@ let player;
 //make the player a astronaut with the gltf loader
   loader.load('Astronaut.glb', (gltf) => {
 //   // Astronaut by Google [CC-BY] via Poly Pizza
-    gltf.scene.scale.set(.1, .1, .1);
+    gltf.scene.scale.set(.3, .3, .3);
+    gltf.scene.rotation.y = Math.PI;
     gltf.scene.position.set(-1, 0, 0);
     player = gltf.scene;
     scene.add(player);
@@ -126,15 +127,18 @@ loader.load('tree.glb', (gltf) => {
 /* Enemies */
 const littleEnemies = []
 for (let i = 0; i < 10; i++) {
-  const enemy = new THREE.Mesh(
-    new THREE.SphereGeometry( .2,24, 10  ),
-    new THREE.MeshPhongMaterial( { color: 0xcccff } )
-  );
-  enemy.position.x = (Math.random() - 0.5) * 20;
-  enemy.position.z = (Math.random() - 0.5) * 20;
-  enemy.name = 'enemy' + i + 1;
-  scene.add(enemy);
-  littleEnemies.push(enemy);
+  let enemy;
+  loader.load('Moon.glb', (gltf) => {
+    // Moon by Google [CC-BY] via Poly Pizza
+    gltf.scene.scale.set(0.21, 0.21, 0.21);
+    gltf.scene.position.set(5, 0, 5);
+    enemy = gltf.scene;
+    enemy.position.x = (Math.random() - 0.5) * 20;
+    enemy.position.z = (Math.random() - 0.5) * 20;
+    enemy.name = 'enemy' + i + 1;
+    scene.add(enemy);
+    littleEnemies.push(enemy);}
+    )
 }
 
 const enemies = [];
@@ -237,7 +241,7 @@ function jump() {
   player.position.y += 0.5;
   setTimeout(() => {
     player.position.y -= 0.5;
-  }, 500);
+  }, 100);
 }
 
 function animate() { 
