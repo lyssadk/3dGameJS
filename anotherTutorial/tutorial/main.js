@@ -66,12 +66,54 @@ const ground = new THREE.Mesh(
 scene.add( ground ); 
 
 /* Player */
+let player;
+//make the player a astronaut with the gltf loader
+  loader.load('Astronaut.glb', (gltf) => {
+//   // Astronaut by Google [CC-BY] via Poly Pizza
+    gltf.scene.scale.set(.1, .1, .1);
+    gltf.scene.position.set(-1, 0, 0);
+    player = gltf.scene;
+    scene.add(player);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        player.position.z -= 0.5;
+      }
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        player.position.z += 0.5;
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        player.position.x -= 0.5;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        player.position.x += 0.5;
+      }
+      if (e.key === ' ') {
+        player.position.y += 0.5;
+      } 
+      if (e.key === 'c') {
+        player.position.y -= 0.5;
+      }
+      if(e.key ==='r' || e.key === 'R'){
+        player.position.x = 0;
+        player.position.y = 0;
+        player.position.z = 0;
+      }
+      if(e.key ==='f' || e.key === 'F'){
+        shoot();
+      }
+      if(e.key ==='j' || e.key === 'J'){
+        jump();
+      }
+    })
+});
 
-const player = new THREE.Mesh(
-  new THREE.BoxGeometry( .5, .5, .5 ),
-  new THREE.MeshPhongMaterial( { color: 0xff0000 } )
-  ); 
-scene.add( player); 
+
+
+// const player = new THREE.Mesh(
+//   new THREE.BoxGeometry( .5, .5, .5 ),
+//   new THREE.MeshPhongMaterial( { color: 0xff0000 } )
+//   ); 
+// scene.add( player); 
 
 // trees
 loader.load('tree.glb', (gltf) => {
@@ -134,7 +176,7 @@ function collectCoins() {
   coins.forEach((coin) => {
     if (player.position.distanceTo(coin.position) < 0.5) {
       scene.remove(coin);
-      player.scale.x += 0.1;
+      player.speed += 0.1;
     }
   });
 }
@@ -189,13 +231,23 @@ function shoot() {
   }
   setInterval(animateBullets, 1000 / 60);
 }
+
+// function that makes the player jump
+function jump() {
+  player.position.y += 0.5;
+  setTimeout(() => {
+    player.position.y -= 0.5;
+  }, 500);
+}
+
 function animate() { 
 
   requestAnimationFrame( animate ); 
+  collectCoins();
   controls.update();
   moveEnemies(littleEnemies, 0.05, 13, -13, 13, -13);
   moveEnemies(enemies, 0.2, 13, -13, 13, -13);
-  collectCoins();
+  
   world.fixedStep();
   renderer.render( scene, camera ); 
 } 
@@ -212,31 +264,3 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 })
 
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-    player.position.z -= 0.5;
-  }
-  if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-    player.position.z += 0.5;
-  }
-  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-    player.position.x -= 0.5;
-  }
-  if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-    player.position.x += 0.5;
-  }
-  if (e.key === ' ') {
-    player.position.y += 0.5;
-  } 
-  if (e.key === 'c') {
-    player.position.y -= 0.5;
-  }
-  if(e.key ==='r' || e.key === 'R'){
-    player.position.x = 0;
-    player.position.y = 0;
-    player.position.z = 0;
-  }
-  if(e.key ==='f' || e.key === 'F'){
-    shoot();
-  }
-})
