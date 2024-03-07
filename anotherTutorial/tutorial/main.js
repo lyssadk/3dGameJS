@@ -51,7 +51,7 @@ scene.add(gridHelper);
 const light = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( light );
 const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set(0.5, 1, 1.5);
+directionalLight.position.set(-2,1, -2);
 scene.add( directionalLight );
 
 
@@ -68,7 +68,8 @@ scene.add( ground );
 /* Player */
 let player;
 //make the player a astronaut with the gltf loader
-  loader.load('Astronaut.glb', (gltf) => {
+  loader.load('Astronaut-2.glb', (gltf) => {
+    // Astronaut-2 by Quaternius [CC-BY] via Poly Pizza
 //   // Astronaut by Google [CC-BY] via Poly Pizza
     gltf.scene.scale.set(.3, .3, .3);
     gltf.scene.rotation.y = Math.PI;
@@ -180,7 +181,9 @@ function collectCoins() {
   coins.forEach((coin) => {
     if (player.position.distanceTo(coin.position) < 0.5) {
       scene.remove(coin);
-      player.speed += 0.1;
+      player.scale.x += 0.01;
+      player.scale.y += 0.01;
+      player.scale.z += 0.01;
     }
   });
 }
