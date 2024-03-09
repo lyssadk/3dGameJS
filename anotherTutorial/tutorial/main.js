@@ -1,4 +1,4 @@
-import './style.css'
+import './style.css';
 import * as THREE from 'three'; 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as CANNON from 'cannon-es';
@@ -7,20 +7,22 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* Variables */
 const loader = new GLTFLoader();
-const pointsUI = document.querySelector('#points');
+const pointsUI = document.querySelector('#pointsUI');
 let points = 0;
 const startButton = document.querySelector('#startButton');
-const timeUI = document.querySelector('#time');
+const timeUI = document.querySelector('#timeUI');
 const clock = new THREE.Clock();
+let start = false;
 
 // Start the game when the start button is clicked
 startButton.addEventListener('click', () => {
+  start = true;
   startButton.style.display = 'none';
   clock.start();
 
   // Start a loop that updates the timeUI every second
   setInterval(() => {
-    const elapsedTime = clock.elapsedTime;
+    const elapsedTime = clock.getElapsedTime();
     // Round the elapsed time to the nearest second and update the timeUI
     timeUI.innerHTML = Math.round(elapsedTime);
   }, 1000); // 1000 milliseconds = 1 second
@@ -30,6 +32,8 @@ startButton.addEventListener('click', () => {
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -9.82, 0),
 });
+
+
 const scene = new THREE.Scene(); 
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z=4.5;
@@ -44,13 +48,14 @@ document.body.appendChild( renderer.domElement );
 const controls = new OrbitControls(camera, renderer.domElement);
 
 /**Grid Helper */
-const gridHelper = new THREE.GridHelper(30, 30);
+const gridHelper = new THREE.GridHelper(50, 50);
 scene.add(gridHelper);
 
 /* Lights */
+const light2 = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
 const light = new THREE.AmbientLight( 0x404040 ); // soft white light
-scene.add( light );
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+scene.add( light, light2 );
+const directionalLight = new THREE.DirectionalLight(0xffffa0, 1 );
 directionalLight.position.set(-2,1, -2);
 scene.add( directionalLight );
 
@@ -58,7 +63,7 @@ scene.add( directionalLight );
 
 /* Ground */
 const ground = new THREE.Mesh(
-  new THREE.BoxGeometry( 30, 1, 30 ),
+  new THREE.BoxGeometry( 50, 1, 50 ),
   new THREE.MeshPhongMaterial( { color: 0x00ff00 } )
   ); 
 
@@ -132,7 +137,7 @@ for (let i = 0; i < 10; i++) {
   loader.load('Moon.glb', (gltf) => {
     // Moon by Google [CC-BY] via Poly Pizza
     gltf.scene.scale.set(0.21, 0.21, 0.21);
-    gltf.scene.position.set(5, 0, 5);
+    gltf.scene.position.set(10, 0, 10);
     enemy = gltf.scene;
     enemy.position.x = (Math.random() - 0.5) * 20;
     enemy.position.z = (Math.random() - 0.5) * 20;
@@ -144,15 +149,17 @@ for (let i = 0; i < 10; i++) {
 
 const enemies = [];
 for (let i = 0; i < 10; i++) {
-  const enemy = new THREE.Mesh(
-    new THREE.BoxGeometry( .5, .5, .5 ),
-    new THREE.MeshPhongMaterial( { color: 0xf0000 } )
-  );
-  enemy.position.x = (Math.random() - 0.5) * 20;
-  enemy.position.z = (Math.random() - 0.5) * 20;
+  let enemy;
+  loader.load('Spaceship.glb', (gltf) => {
+    // Spaceship by Quaternius [CC-BY] via Poly Pizza
+    gltf.scene.scale.set(.2, .2, .2);
+    gltf.scene.position.set(10, 0, 10);
+    enemy = gltf.scene;
+  enemy.position.x = (Math.random() - 0.7) * 20;
+  enemy.position.z = (Math.random() - 0.7) * 20;
   enemy.name = 'enemy' + i + 1;
   scene.add(enemy);
-  enemies.push(enemy);
+  enemies.push(enemy);})
 }
 /* Coins */
 const coins = [];
@@ -172,7 +179,7 @@ const moveEnemies =(arr, speed, maxX, minX, maxZ, minZ) => {
     enemy.position.z += speed;
     if (enemy.position.z > maxZ) {
       enemy.position.z = minZ;
-      enemy.position.x = (Math.random() - 0.5) * maxX;
+      enemy.position.x = (Math.random() - 1) * maxX;
     }
   })
 }
@@ -239,6 +246,23 @@ function shoot() {
   setInterval(animateBullets, 1000 / 60);
 }
 
+//function that detects if the player got hit by an enemy and ends the game
+function detectCollision() {
+  littleEnemies.forEach((enemy) => {
+    if (player.position.distanceTo(enemy.position) < 0.5) {
+      alert('Game Over');
+      document.location.reload();
+    }
+  });
+  enemies.forEach((enemy) => {
+    if (player.position.distanceTo(enemy.position) < 0.5) {
+      alert('Game Over');
+      document.location.reload();
+    }
+  });
+ 
+}
+
 // function that makes the player jump
 function jump() {
   player.position.y += 0.5;
@@ -253,8 +277,10 @@ function animate() {
   collectCoins();
   controls.update();
   moveEnemies(littleEnemies, 0.05, 13, -13, 13, -13);
-  moveEnemies(enemies, 0.2, 13, -13, 13, -13);
+  moveEnemies(enemies, 0.2, 25, -25, 25, -25);
   
+  detectCollision();
+  resetPlayer();
   world.fixedStep();
   renderer.render( scene, camera ); 
 } 
