@@ -3,7 +3,7 @@
 # Overview
 The Game I am building is where the player's goal is to go around the map and try to collect coins as fast as possble without running into the enemies. I have always wanted to make a game, and I found threejs and figured this would be a good project to learn more about threejs and make a game.
 
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/xfljja9EUSc)
 
 # Development Environment
 Vite
